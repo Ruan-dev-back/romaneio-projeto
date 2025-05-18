@@ -1,16 +1,195 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <title>Gerar Romaneio</title>
+    <meta charset="UTF-8" />
+    <title>Romaneio de Carga - Flux Hidro</title>
+    <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;600&display=swap" rel="stylesheet" />
+    <style>
+        /* Reset e base */
+        * {
+          margin: 0;
+          padding: 0;
+          box-sizing: border-box;
+          font-family: 'Rubik', sans-serif;
+        }
+
+        body {
+          background: linear-gradient(135deg, #e0f7fa, #ffffff);
+          min-height: 100vh;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          padding: 2rem 1rem;
+          overflow-y: auto;
+        }
+
+        /* Header com logo à esquerda e título centralizado */
+        .header {
+          position: relative;
+          width: 100%;
+          max-width: 800px;
+          height: 100px;
+          margin-bottom: 1.5rem;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          box-sizing: border-box;
+          padding-left: 120px; /* espaço reservado para a logo à esquerda */
+        }
+
+        .header img {
+          position: absolute;
+          left: 0;
+          height: 80px;
+          top: 50%;
+          transform: translateY(-50%);
+        }
+
+        .header h1 {
+          font-size: 2.4rem;
+          font-weight: 600;
+          color: #004d66;
+          text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+          text-align: center;
+          width: 100%;
+        }
+
+        /* Container do formulário */
+        .container {
+          background-color: #ffffffcc;
+          backdrop-filter: blur(6px);
+          padding: 1.8rem 2rem;
+          border-radius: 16px;
+          box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+          width: 100%;
+          max-width: 600px;
+          animation: fadeIn 1s ease-in-out;
+          box-sizing: border-box;
+        }
+
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
+            transform: translateY(-10px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+
+        /* Labels e inputs */
+        label {
+          display: block;
+          margin-bottom: 0.6rem;
+          font-weight: 600;
+          color: #004d66;
+          font-size: 1.1rem;
+        }
+
+        input[type='text'],
+        input[type='file'] {
+          width: 100%;
+          padding: 0.75rem;
+          border: 1px solid #ccc;
+          border-radius: 8px;
+          margin-bottom: 1.8rem;
+          font-size: 1rem;
+          transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        input[type='text']:focus,
+        input[type='file']:focus {
+          outline: none;
+          border-color: #0097a7;
+          box-shadow: 0 0 8px #0097a766;
+        }
+
+        /* Botão centralizado */
+        button {
+          display: block;
+          margin: 0 auto;
+          background-color: #0097a7;
+          color: #fff;
+          padding: 0.85rem 2rem;
+          border: none;
+          border-radius: 8px;
+          font-size: 1.1rem;
+          font-weight: 600;
+          cursor: pointer;
+          transition: background-color 0.3s ease;
+          box-shadow: 0 4px 12px rgba(0, 151, 167, 0.4);
+        }
+
+        button:hover {
+          background-color: #006064;
+        }
+
+        /* Rodapé */
+        .footer {
+          margin-top: 2.5rem;
+          font-size: 0.85rem;
+          color: #777;
+          text-align: center;
+          width: 100%;
+          max-width: 800px;
+          user-select: none;
+        }
+    </style>
 </head>
 <body>
-<h1>Gerar Romaneio</h1>
-<form method="post" action="/gerarRomaneio" enctype="multipart/form-data">
-    <label for="arquivoNota">Selecione o arquivo PDF da Nota Fiscal:</label>
-    <input type="file" id="arquivoNota" name="arquivoNota" accept="application/pdf" required>
-    <br><br>
-    <button type="submit">Gerar Romaneio</button>
-</form>
+<header class="header">
+    <img src="/img/logo.png" alt="Logo Flux Hidro" />
+    <h1>Romaneio de Carga</h1>
+</header>
+
+<main class="container">
+    <form id="romaneioForm">
+        <label for="transportadora">Nome da Transportadora:</label>
+        <input type="text" id="transportadora" name="transportadora" required />
+
+        <label for="files">Notas Fiscais (PDF):</label>
+        <input type="file" id="files" name="files" accept=".pdf" multiple required />
+
+        <button type="submit">Gerar Romaneio</button>
+    </form>
+</main>
+
+<footer class="footer">
+    © 2025 Flux Hidro. Todos os direitos reservados.
+</footer>
+
+<script>
+    document.getElementById("romaneioForm").addEventListener("submit", async function (e) {
+      e.preventDefault();
+
+      const form = e.target;
+      const formData = new FormData();
+
+      formData.append("transportadora", form.transportadora.value);
+      for (let file of form.files.files) {
+        formData.append("files", file);
+      }
+
+      try {
+        const response = await fetch("/gerarRomaneio", {
+          method: "POST",
+          body: formData,
+        });
+
+        if (response.ok) {
+          const blob = await response.blob();
+          const link = document.createElement("a");
+          link.href = URL.createObjectURL(blob);
+          link.download = "romaneio.pdf";
+          link.click();
+        } else {
+          alert("Erro ao gerar o romaneio.");
+        }
+      } catch (error) {
+        alert("Falha na requisição: " + error.message);
+      }
+    });
+</script>
 </body>
 </html>
